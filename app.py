@@ -9,32 +9,22 @@ import json
 import io
 
 if not firebase_admin._apps:
-    try:
-        firebase_key_str = st.secrets["FIREBASE_KEY"]
-
-        if isinstance(firebase_key_str, str):
-            firebase_key = json.loads(firebase_key_str)
-        else:
-            firebase_key = firebase_key_str
-            
-        cred = credentials.Certificate(firebase_key)
+    KEY_PATH = "serviceAccountKey.json"
+    if os.path.exists(KEY_PATH):
+        cred = credentials.Certificate(KEY_PATH)
         firebase_admin.initialize_app(cred)
-        st.sidebar.success("Подключено к Firebase (через st.secrets)")
-        
-    except KeyError:
-        KEY_PATH = "serviceAccountKey.json"
-        if os.path.exists(KEY_PATH):
-            cred = credentials.Certificate(KEY_PATH)
+        st.sidebar.info("Подключено к Firebase (локальный файл)")
+    else:
+        try:
+            firebase_key = st.secrets["FIREBASE_KEY"]
+            if isinstance(firebase_key, str):
+                firebase_key = json.loads(firebase_key)
+            cred = credentials.Certificate(firebase_key)
             firebase_admin.initialize_app(cred)
-            st.sidebar.info("Подключено к Firebase (локальный файл)")
-        else:
-            st.error("Ошибка: файл serviceAccountKey.json не найден и st.secrets не настроен!")
+            st.sidebar.success("Подключено к Firebase (через st.secrets)")
+        except Exception as e:
+            st.error(f"Ошибка подключения к Firebase: {e}")
             st.stop()
-    except Exception as e:
-        st.error(f"Ошибка подключения к Firebase: {e}")
-        st.stop()
-
-db = firestore.client()
 
 st.set_page_config(page_title="Опрос: Карьерные ожидания", layout="wide")
 st.title("Карьерные ожидания выпускников")
