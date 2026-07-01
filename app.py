@@ -5,16 +5,24 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime
 import os
-import io
-
-KEY_PATH = "serviceAccountKey.json"
+import json
 
 if not firebase_admin._apps:
-    if not os.path.exists(KEY_PATH):
-        st.error("Ошибка: файл serviceAccountKey.json не найден!")
-        st.stop()
-    cred = credentials.Certificate(KEY_PATH)
-    firebase_admin.initialize_app(cred)
+    try:
+        firebase_key = st.secrets["firebase_key"]
+        cred = credentials.Certificate(firebase_key)
+        firebase_admin.initialize_app(cred)
+        st.sidebar.success("Подключено к Firebase (через st.secrets)")
+    except KeyError:
+
+        KEY_PATH = "serviceAccountKey.json"
+        if os.path.exists(KEY_PATH):
+            cred = credentials.Certificate(KEY_PATH)
+            firebase_admin.initialize_app(cred)
+            st.sidebar.info(" Подключено к Firebase (локальный файл)")
+        else:
+            st.error("Ошибка: файл serviceAccountKey.json не найден и st.secrets не настроен!")
+            st.stop()
 
 db = firestore.client()
 
