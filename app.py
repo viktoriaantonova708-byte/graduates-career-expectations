@@ -25,6 +25,7 @@ if not firebase_admin._apps:
         except Exception as e:
             st.error(f"Ошибка подключения к Firebase: {e}")
             st.stop()
+db = firestore.client()
 
 st.set_page_config(page_title="Опрос: Карьерные ожидания", layout="wide")
 st.title("Карьерные ожидания выпускников")
