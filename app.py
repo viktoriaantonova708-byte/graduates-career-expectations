@@ -6,6 +6,7 @@ import plotly.express as px
 from datetime import datetime
 import os
 import json
+import io
 
 if not firebase_admin._apps:
     try:
